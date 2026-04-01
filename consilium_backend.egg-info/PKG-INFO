@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: consilium-backend
+Version: 0.1.0
+Summary: Consilium Backend
+Requires-Python: >=3.11
+Requires-Dist: fastapi<1.0,>=0.110
+Requires-Dist: uvicorn<1.0,>=0.27
+Requires-Dist: sqlalchemy<3.0,>=2.0
+Requires-Dist: pydantic<3.0,>=2.0
+Requires-Dist: pydantic-settings<3.0,>=2.0
+Requires-Dist: python-jose[cryptography]<4.0,>=3.3
+Requires-Dist: bcrypt<5.0,>=4.0
+Requires-Dist: python-multipart>=0.0.6
+Requires-Dist: httpx<1.0,>=0.27
+Requires-Dist: docling>=2.0
+Requires-Dist: chromadb>=0.5

@@ -1,0 +1,10 @@
+---
+document_id: 331d9dc4-4d72-4272-b9fe-7fc44148c980
+chunk_index: 736
+page: 212
+heading: "Conclusions"
+---
+
+Table 2 Provocative angiography series
+
+Therapeutic modality, 1 = 5 Embolized 1 Embolized then required operation 2 Spontaneous cessation. Therapeutic modality, 2 = 2 Embolized 1 Embolized then required operation 2 Estrogen 1 Medical. Therapeutic modality, 3 = All confirmed with endoscopy or surgery. Therapeutic modality, 4 = 2 Operation. Therapeutic modality, 5 = 1 Embolized 1 Operation. Therapeutic modality, 6 = NR. Diagnostic extravasation (%), 1 = 8/9 (89). Diagnostic extravasation (%), 2 = 6/16 (38). Diagnostic extravasation (%), 3 = 12/18 (67). Diagnostic extravasation (%), 4 = 2/7 (29). Diagnostic extravasation (%), 5 = 2/9 (22). Diagnostic extravasation (%), 6 = 8/10 (80). Deliverya a, 1 = a. Arterial. Deliverya a, 2 = a. IV b. Arterial c. Arterial. Deliverya a, 3 = a. Arterial b. IV. Deliverya a, 4 = a. Arterial b. Arterial c. Arterial. Deliverya a, 5 = a. IV b. IV. Deliverya a, 6 = a. IV b. Arterial c. Arterial. Dose, 1 = a. 5 U in 20 mL NS over 1 min. Dose, 2 = a. 3,000-10,000 U b. 25-100 mg c. 10-50 mg over 15 min. Dose, 3 = a. 65 mg b. 5,000 U Bolus then 24 h infusion to PTT 60-85 s. Dose, 4 = a. 25 mg b. 1,000-10,000 U c. 250,000 U aliquots to max total dose of 1,000,000 U. Dose, 5 = a. 10,000 U bolus then 500 U/h × 3 h b. 250,000 U/h bolus then 250,000 U/h × 3 h. Dose, 6 = a. 5,000-10,000 U b. NR c. NR. Agents, 1 = Reteplase. Agents, 2 = a. Heparin b. Tolazoline c. tPA. Agents, 3 = a. Papaverine b. Heparin. Agents, 4 = a. Tolazoline b. Heparin c. Urokinase. Agents, 5 = a. Heparin b. Urokinase. Agents, 6 = a. Heparin b. Tolazoline c. Streptokinase. Class study, 1 = Retrospective. Class study, 2 = Retrospective. Class study, 3 = Retrospective. Class study, 4 = Retrospective. Class study, 5 = Prospective. Class study, 6 = Retrospective. References, 1 = Widlus [8]. References, 2 = Ryan [7]. References, 3 = Mernagh [4]. References, 4 = Bloomfeld [6]. References, 5 = Malden [5] b. References, 6 = Koval [2]

@@ -1,0 +1,8 @@
+---
+document_id: 331d9dc4-4d72-4272-b9fe-7fc44148c980
+chunk_index: 506
+page: 144
+heading: "Introduction"
+---
+
+Hemorrhoids are formed when fibromuscular cushions normally lining the anal canal become pathologically engorged leading to symptoms of bleeding, pruritis, and pain. These cushions serve to aid with control of continence and evacuation of formed stool without mucosal injury [1]. They are classically located in three positions: right anterior, right posterior, and left lateral [2]. There are two classes of hemorrhoids that can cause significant symptoms: internal and external, divided based on their position relative to the dentate line (Fig. 1). Internal hemorrhoids form when the anal cushions normally located proximal to the dentate line and held in place by connective tissue bands become dislodged and enlarged. They then become symptomatic by degrees which defines how urgently they require intervention. Bleeding is the symptom most commonly prompting intervention. First-degree hemorrhoids remain inside the anal opening but cause a sensation of fullness upon defecation and can cause localized pain and bleeding. Second-degree hemorrhoids prolapse outside of the anal opening with the increased pressure of Valsalva that is required for passage of feces, then spontaneously internalize once again. Third-degree hemorrhoids prolapse with Valsalva and remain outside the anal opening unless manually replaced in their anatomic position above the dentate line. Fourth-degree hemorrhoids prolapse with increased pressure and remain externalized, unable to be even manually reduced. External hemorrhoids are formed when peri-anal venous structures become engorged and thrombose causing pain ([3], Fig. 2).

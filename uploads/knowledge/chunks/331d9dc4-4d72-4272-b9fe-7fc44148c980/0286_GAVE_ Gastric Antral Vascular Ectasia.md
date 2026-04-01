@@ -1,0 +1,8 @@
+---
+document_id: 331d9dc4-4d72-4272-b9fe-7fc44148c980
+chunk_index: 286
+page: 77
+heading: "GAVE: Gastric Antral Vascular Ectasia"
+---
+
+A wide spectrum of initial presentations have been described for GAVE including severe acute upper GI hemorrhage and iron deficiency anemia secondary to occult blood loss. Patients may also complain of intermittent melena or hematemesis. Many are transfusion-dependant despite iron supplementation. The diagnosis of GAVE is made on endoscopy and confirmed by gastric mucosal biopsy. The classic striped 'watermelon' or 'tiger' pattern of erythematous mucosa is found in the antrum. Non-cirrhotic patients are more likely to have this typical pattern while cirrhotic patients may have more diffuse disease (Fig. 1). A diagnostic dilemma in cirrhotic patients is differentiating GA VE from portal hypertensive gastropathy (PHG). Making the correct diagnosis is important since GAVE will not respond to reduction in portal pressure [1, 3]. Distribution of the vascular changes may help: GAVE is typically limited to the antrum while PHG is associated with changes to the fundus and corpus, although, as noted above, cirrhotic patients with GA VE are less likely than autoimmune patients to have this typical distribution. Histologically, GAVE is characterized by mucosal vascular ectasia, fibrin thrombi, hyalinosis, and proliferation of spindle cells. Active bleeding may not be immediately apparent on endoscopy, but often occurs spontaneously after strong antral contractions. In PHG, active bleeding is obvious on endoscopy and recent bleeding is often characterized by variceal stigmata.

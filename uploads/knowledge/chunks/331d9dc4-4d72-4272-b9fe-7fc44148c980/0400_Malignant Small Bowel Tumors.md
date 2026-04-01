@@ -1,0 +1,8 @@
+---
+document_id: 331d9dc4-4d72-4272-b9fe-7fc44148c980
+chunk_index: 400
+page: 108
+heading: "Malignant Small Bowel Tumors"
+---
+
+If a GIST is suspected or detected during the evaluation of a patient with GI bleeding, preoperative evaluation should include CT scan of the chest, abdomen, and pelvis in order to both plan the operative strategy and evaluate for metastatic disease. On CT scan, GIST tumors classically appear as well-defined masses with heterogeneous soft tissue rims, often with a central fluid collection [53]. Endoscopy with or without endoscopic ultrasound may be of benefit if not previously performed, and biopsy of the mass may allow for risk stratification of the patient [54]. Endoscopically, GISTs appear as single, firm, grey-white masses, often with a central ulceration [6]. Surgical resection is the preferred and only potentially curative management for all GIST tumors. During resection, exploration of the peritoneum and liver for possible metastases should be performed. Care should also be taken to prevent tumor rupture to avoid dissemination of the tumor. If possible, complete tumor resection with intact pseudocapsule and negative margin should be performed. Lymph node resection is not necessary if the diagnosis of GIST is made prior to surgery due to the low propensity of GISTs to metastasize to lymphoid depots. Multiple recent clinical trials evaluating adjuvant or neoadjuvant (in the case of unresectable disease) chemotherapy with imatinib mesylate (Gleevac R © ) or sunitinib malate (Sutent R © ) demonstrate definitive survival benefits for patients with GISTs, and these therapies should be considered in patients bearing GISTs [53].

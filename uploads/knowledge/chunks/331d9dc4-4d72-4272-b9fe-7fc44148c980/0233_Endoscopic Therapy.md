@@ -1,0 +1,8 @@
+---
+document_id: 331d9dc4-4d72-4272-b9fe-7fc44148c980
+chunk_index: 233
+page: 58
+heading: "Endoscopic Therapy"
+---
+
+Injections with solutions of diluted epinephrine (1:10,000) are widely used because of their simplicity. The principle mechanism of action by which diluted epinephrine solutions work is a tamponade effect induced by the volume of solution injected. It is therefore logical that in a recent study, a large-volume (35-45 mL) epinephrine injection appeared to be more effective than a standard-volume (15-25 mL) injection [46]. Solutions of agents other than epinephrine, such as sclerosants, saline, or even dextrose, can produce the same effect. In spite of the large body of published literature, no single solution for endoscopic injection has been shown to be superior to another in achieving hemostasis. The use of sclerosants in injection therapy for bleeding ulcers should be discouraged, however. Addition of a sclerosant has repeatedly been shown to confer no advantage over injection with epinephrine alone and extensive, uncontrolled tissue necrosis may occur resulting in ulcer perforation [47, 48]. The use of injectable fibrin sealant is a relatively new approach to achieve initial hemostasis and decrease the rate of rebleeding from peptic ulcers. An open label, multicenter, randomized trial of 854 patients with actively bleeding gastroduodenal ulcers compared the safety and efficacy of a single application of fibrin sealant, daily repeated doses of fibrin sealant until the visible vessel disappeared, or a single application of the sclerosant polidocanol [49]. While the safety profiles of

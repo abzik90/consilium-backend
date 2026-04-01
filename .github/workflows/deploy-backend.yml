@@ -1,0 +1,96 @@
+name: Build and Deploy Backend
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-backend-main
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST || '164.92.172.190' }}
+      DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+      DEPLOY_POST_CMD: ${{ vars.DEPLOY_POST_CMD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: Validate backend code
+        run: python -m compileall app
+
+      - name: Configure SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+
+      - name: Validate deploy settings
+        run: |
+          set -e
+          if [ -z "$DEPLOY_HOST" ]; then
+            echo "DEPLOY_HOST is empty. Set it in GitHub Actions Variables."
+            exit 1
+          fi
+          if [ -z "$DEPLOY_USER" ]; then
+            echo "DEPLOY_USER is empty. Set it in GitHub Actions Variables."
+            exit 1
+          fi
+          if [ -z "$DEPLOY_PATH" ]; then
+            echo "DEPLOY_PATH is empty. Set it in GitHub Actions Variables."
+            exit 1
+          fi
+          if ! [[ "$DEPLOY_PORT" =~ ^[0-9]+$ ]]; then
+            echo "DEPLOY_PORT must be numeric. Current value: '$DEPLOY_PORT'"
+            exit 1
+          fi
+          echo "Deploy target validated: ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH} (port ${DEPLOY_PORT})"
+
+      - name: Add server host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Ensure deploy path exists
+        run: |
+          ssh -p "$DEPLOY_PORT" "${DEPLOY_USER}@${DEPLOY_HOST}" "mkdir -p '${DEPLOY_PATH}'"
+
+      - name: Deploy backend via rsync
+        run: |
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '.venv/' \
+            --exclude '__pycache__/' \
+            --exclude '*.pyc' \
+            --exclude 'consilium.db' \
+            --exclude 'consilium.db-shm' \
+            --exclude 'consilium.db-wal' \
+            --exclude 'uploads/' \
+            -e "ssh -p ${DEPLOY_PORT}" \
+            app/ pyproject.toml uv.lock "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
+
+      - name: Optional post-deploy command
+        run: |
+          if [ -n "${DEPLOY_POST_CMD}" ]; then
+            ssh -p "$DEPLOY_PORT" "${DEPLOY_USER}@${DEPLOY_HOST}" "$DEPLOY_POST_CMD"
+          else
+            echo "No DEPLOY_POST_CMD provided, skipping post-deploy step"
+          fi
