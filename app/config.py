@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     upload_dir: str = "./uploads"
     chroma_dir: str = "./uploads/chroma_db"
     chunks_dir: str = "./uploads/knowledge/chunks"
+    frontend_dir: str = "../frontend"
+    app_host: str = "127.0.0.1"
+    app_port: int = 8000
+    app_reload: bool = False
     openrouter_consilium_key: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
