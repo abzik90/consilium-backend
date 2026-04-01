@@ -85,7 +85,7 @@ jobs:
             --exclude 'consilium.db-wal' \
             --exclude 'uploads/' \
             -e "ssh -p ${DEPLOY_PORT}" \
-            app/ deploy/ pyproject.toml uv.lock "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
+            app deploy pyproject.toml uv.lock "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
 
       - name: Optional post-deploy command
         run: |
