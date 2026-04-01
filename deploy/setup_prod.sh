@@ -39,7 +39,7 @@ sudo -u "$APP_USER" "$VENV_DIR/bin/pip" install "$BACKEND_DIR"
 if [[ ! -f "$ENV_FILE" ]]; then
   cat > "$ENV_FILE" <<EOF
 DATABASE_URL=sqlite:///$BACKEND_DIR/consilium.db
-OPENROUTER_CONSILIUM_KEY=
+OPENROUTER_CONSILIUM_KEY=${OPENROUTER_CONSILIUM_KEY:-}
 SECRET_KEY=change-me-in-production
 STORAGE_BASE_URL=https://$DOMAIN/files
 UPLOAD_DIR=$BACKEND_DIR/uploads
