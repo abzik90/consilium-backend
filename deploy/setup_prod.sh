@@ -15,6 +15,8 @@ DOMAIN="${DOMAIN:-_}"
 APP_HOST="${APP_HOST:-127.0.0.1}"
 APP_PORT="${APP_PORT:-8000}"
 NGINX_SITE_NAME="${NGINX_SITE_NAME:-consilium}"
+ENABLE_SWAP="${ENABLE_SWAP:-true}"
+SWAP_SIZE_GB="${SWAP_SIZE_GB:-2}"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -26,6 +28,17 @@ fi
 apt-get update
 apt-get install -y python3 python3-venv python3-pip nginx rsync ufw
 
+if [[ "$ENABLE_SWAP" == "true" ]] && ! swapon --show | grep -q '^'; then
+  echo "No swap detected. Creating ${SWAP_SIZE_GB}G swapfile for safer package install..."
+  fallocate -l "${SWAP_SIZE_GB}G" /swapfile || dd if=/dev/zero of=/swapfile bs=1M count=$((SWAP_SIZE_GB * 1024))
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  if ! grep -q '^/swapfile ' /etc/fstab; then
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  fi
+fi
+
 mkdir -p "$BACKEND_DIR" "$FRONTEND_DIR"
 chown -R "$APP_USER:$APP_GROUP" "$APP_ROOT"
 
@@ -34,7 +47,15 @@ if [[ ! -d "$VENV_DIR" ]]; then
 fi
 
 sudo -u "$APP_USER" "$VENV_DIR/bin/pip" install --upgrade pip
-sudo -u "$APP_USER" "$VENV_DIR/bin/pip" install "$BACKEND_DIR"
+if ! sudo -u "$APP_USER" "$VENV_DIR/bin/pip" install \
+  --prefer-binary \
+  --no-cache-dir \
+  --no-build-isolation \
+  "$BACKEND_DIR"; then
+  echo "pip install failed. This is often caused by low memory on small servers."
+  echo "Check OOM logs with: dmesg -T | grep -i -E 'killed process|out of memory'"
+  exit 1
+fi
 
 if [[ ! -f "$ENV_FILE" ]]; then
   cat > "$ENV_FILE" <<EOF
