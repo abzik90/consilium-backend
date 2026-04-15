@@ -89,10 +89,11 @@ jobs:
 
       - name: Install dependencies on server
         run: |
-          ssh -p "$DEPLOY_PORT" "${DEPLOY_USER}@${DEPLOY_HOST}" "
-            cd '${DEPLOY_PATH}' &&
-            .venv/bin/pip install '${DEPLOY_PATH}'
-          "
+          ssh -p "$DEPLOY_PORT" "${DEPLOY_USER}@${DEPLOY_HOST}" "\
+            set -e && \
+            cd '${DEPLOY_PATH}' && \
+            [ -f .venv/bin/pip ] || python3 -m venv .venv && \
+            .venv/bin/pip install ."
 
       - name: Restart backend service
         run: |
