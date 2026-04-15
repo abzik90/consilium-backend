@@ -17,7 +17,7 @@ jobs:
       DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
       DEPLOY_USER: ${{ vars.DEPLOY_USER }}
       DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
-      DEPLOY_POST_CMD: ${{ vars.DEPLOY_POST_CMD }}
+      SERVICE_NAME: ${{ vars.SERVICE_NAME || 'consilium.service' }}
 
     steps:
       - name: Checkout
@@ -87,10 +87,13 @@ jobs:
             -e "ssh -p ${DEPLOY_PORT}" \
             app deploy pyproject.toml uv.lock "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
 
-      - name: Optional post-deploy command
+      - name: Install dependencies on server
         run: |
-          if [ -n "${DEPLOY_POST_CMD}" ]; then
-            ssh -p "$DEPLOY_PORT" "${DEPLOY_USER}@${DEPLOY_HOST}" "$DEPLOY_POST_CMD"
-          else
-            echo "No DEPLOY_POST_CMD provided, skipping post-deploy step"
-          fi
+          ssh -p "$DEPLOY_PORT" "${DEPLOY_USER}@${DEPLOY_HOST}" "
+            cd '${DEPLOY_PATH}' &&
+            .venv/bin/pip install '${DEPLOY_PATH}'
+          "
+
+      - name: Restart backend service
+        run: |
+          ssh -p "$DEPLOY_PORT" "${DEPLOY_USER}@${DEPLOY_HOST}" "sudo systemctl restart ${SERVICE_NAME}"
