@@ -7,7 +7,10 @@ ChromaDB handles embedding generation using its default model
 
 from __future__ import annotations
 
+import hashlib
 import logging
+import math
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,9 +26,31 @@ logger = logging.getLogger(__name__)
 # Singleton client
 # ---------------------------------------------------------------------------
 
-_CHROMA_DIR = Path(settings.upload_dir) / "chroma_db"
+_CHROMA_DIR = Path(settings.chroma_dir)
 _client: chromadb.ClientAPI | None = None
 _COLLECTION_NAME = "knowledge_chunks"
+_EMBED_DIM = 384
+_TOKEN_RE = re.compile(r"\w+", re.UNICODE)
+
+
+def _embed_text(text: str) -> list[float]:
+    """Generate deterministic local embeddings without any network/model downloads."""
+    vector = [0.0] * _EMBED_DIM
+    for token in _TOKEN_RE.findall(text.lower()):
+        digest = hashlib.blake2b(token.encode("utf-8"), digest_size=8).digest()
+        index = int.from_bytes(digest[:4], "big") % _EMBED_DIM
+        sign = -1.0 if digest[4] & 1 else 1.0
+        weight = 1.5 if len(token) > 6 else 1.0
+        vector[index] += sign * weight
+
+    norm = math.sqrt(sum(value * value for value in vector))
+    if norm:
+        return [value / norm for value in vector]
+    return vector
+
+
+def _embed_texts(texts: list[str]) -> list[list[float]]:
+    return [_embed_text(text) for text in texts]
 
 
 def _get_client() -> chromadb.ClientAPI:
@@ -118,6 +143,7 @@ def index_chunks(
             }
         )
 
+    embeddings = _embed_texts(documents)
     total = len(ids)
 
     # Upsert in batches of 100 (ChromaDB limit per call)
@@ -126,6 +152,7 @@ def index_chunks(
         collection.upsert(
             ids=ids[i : i + batch_size],
             documents=documents[i : i + batch_size],
+            embeddings=embeddings[i : i + batch_size],
             metadatas=metadatas[i : i + batch_size],
         )
         done = min(i + batch_size, total)
@@ -192,7 +219,7 @@ def search(
     where = {"category": category} if category else None
 
     results = collection.query(
-        query_texts=[query],
+        query_embeddings=[_embed_text(query)],
         n_results=min(n_results, collection.count()),
         where=where,
         include=["documents", "metadatas", "distances"],

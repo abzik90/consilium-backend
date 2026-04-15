@@ -260,7 +260,7 @@ def upload_document(
         size_bytes=len(contents),
         chunks=None,
         chunks_processed=0,
-        status="processing",
+        status="parsing",
         uploaded_by=current_user.id,
         storage_path=dest,
         uploaded_at=datetime.now(timezone.utc),
@@ -434,7 +434,7 @@ def reindex_document(
     # Remove old vectors synchronously, then re-index in the background
     remove_document(doc.id)
 
-    doc.status = "processing"
+    doc.status = "parsing"
     doc.chunks_processed = 0
     doc.chunks = None
     db.commit()

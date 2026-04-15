@@ -9,21 +9,30 @@ or re-indexed without re-running Docling.
 from __future__ import annotations
 
 import os
-os.environ["OMP_NUM_THREADS"] = "10"
-os.environ["MKL_NUM_THREADS"] = "10"
-os.environ["OPENBLAS_NUM_THREADS"] = "10"
-os.environ["NUMEXPR_MAX_THREADS"] = "10"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-import torch
-torch.set_num_threads(10)
-
 import logging
 import re
 import shutil
 import time
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
+
+_SAFE_THREAD_COUNT = max(
+    1,
+    min(int(os.environ.get("DOC_PROCESS_THREADS", "2")), os.cpu_count() or 1),
+)
+os.environ.setdefault("OMP_NUM_THREADS", str(_SAFE_THREAD_COUNT))
+os.environ.setdefault("MKL_NUM_THREADS", str(_SAFE_THREAD_COUNT))
+os.environ.setdefault("OPENBLAS_NUM_THREADS", str(_SAFE_THREAD_COUNT))
+os.environ.setdefault("NUMEXPR_MAX_THREADS", str(_SAFE_THREAD_COUNT))
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
+try:
+    import torch
+except Exception:  # pragma: no cover - runtime-only optimization
+    torch = None
+else:  # pragma: no branch
+    torch.set_num_threads(_SAFE_THREAD_COUNT)
 
 from docling.document_converter import DocumentConverter
 from docling_core.transforms.chunker import HierarchicalChunker
@@ -102,6 +111,129 @@ def _parse_chunk_md(text: str) -> DocumentChunk:
     return DocumentChunk(text=body, page=page, heading=heading, index=index)
 
 
+def _split_text_to_chunks(
+    text: str,
+    *,
+    max_tokens: int,
+    page: int | None = None,
+    heading: str | None = None,
+    start_index: int = 0,
+) -> list[DocumentChunk]:
+    """Split plain text into compact token-bounded chunks."""
+    cleaned = text.strip()
+    if not cleaned:
+        return []
+
+    paragraphs = [p.strip() for p in re.split(r"\n\s*\n+", cleaned) if p.strip()]
+    if not paragraphs:
+        paragraphs = [cleaned]
+
+    chunks: list[DocumentChunk] = []
+    current_parts: list[str] = []
+    current_tokens = 0
+    next_index = start_index
+
+    def _flush() -> None:
+        nonlocal current_parts, current_tokens, next_index
+        if not current_parts:
+            return
+        chunk_text = "\n\n".join(current_parts).strip()
+        if chunk_text:
+            chunks.append(
+                DocumentChunk(
+                    text=chunk_text,
+                    page=page,
+                    heading=heading,
+                    index=next_index,
+                )
+            )
+            next_index += 1
+        current_parts = []
+        current_tokens = 0
+
+    for paragraph in paragraphs:
+        words = paragraph.split()
+        if not words:
+            continue
+
+        if len(words) > max_tokens:
+            _flush()
+            for i in range(0, len(words), max_tokens):
+                piece = " ".join(words[i : i + max_tokens]).strip()
+                if piece:
+                    chunks.append(
+                        DocumentChunk(
+                            text=piece,
+                            page=page,
+                            heading=heading,
+                            index=next_index,
+                        )
+                    )
+                    next_index += 1
+            continue
+
+        if current_tokens + len(words) > max_tokens:
+            _flush()
+
+        current_parts.append(paragraph)
+        current_tokens += len(words)
+
+    _flush()
+    return chunks
+
+
+def _chunk_pdf_with_pypdf(path: Path, *, max_tokens: int) -> list[DocumentChunk]:
+    """Fast local PDF chunker that avoids Docling's cold-start overhead."""
+    from pypdf import PdfReader
+
+    reader = PdfReader(str(path))
+    chunks: list[DocumentChunk] = []
+    for page_number, page in enumerate(reader.pages, start=1):
+        text = (page.extract_text() or "").strip()
+        if not text:
+            continue
+        chunks.extend(
+            _split_text_to_chunks(
+                text,
+                max_tokens=max_tokens,
+                page=page_number,
+                start_index=len(chunks),
+            )
+        )
+    return chunks
+
+
+def _chunk_docx_text(path: Path, *, max_tokens: int) -> list[DocumentChunk]:
+    """Fast DOCX text extraction for server uploads."""
+    from docx import Document as DocxDocument
+
+    document = DocxDocument(str(path))
+    text = "\n\n".join(p.text.strip() for p in document.paragraphs if p.text.strip())
+    return _split_text_to_chunks(text, max_tokens=max_tokens)
+
+
+def _chunk_plain_text_file(path: Path, *, max_tokens: int) -> list[DocumentChunk]:
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    return _split_text_to_chunks(text, max_tokens=max_tokens)
+
+
+def _try_fast_chunking(path: Path, *, max_tokens: int) -> list[DocumentChunk]:
+    suffix = path.suffix.lower()
+    if suffix == ".pdf":
+        return _chunk_pdf_with_pypdf(path, max_tokens=max_tokens)
+    if suffix == ".docx":
+        return _chunk_docx_text(path, max_tokens=max_tokens)
+    if suffix in {".md", ".txt"}:
+        return _chunk_plain_text_file(path, max_tokens=max_tokens)
+    return []
+
+
+@lru_cache(maxsize=1)
+def _get_docling_converter() -> DocumentConverter:
+    """Reuse a single Docling converter to avoid repeated heavy startup cost."""
+    return DocumentConverter()
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -129,9 +261,22 @@ def chunk_document(
     if not path.exists():
         raise FileNotFoundError(f"File not found: {path}")
 
+    try:
+        fast_chunks = _try_fast_chunking(path, max_tokens=max_tokens)
+    except Exception as exc:
+        logger.warning("Fast chunking failed for %s: %s", path.name, exc)
+    else:
+        if fast_chunks:
+            logger.info(
+                "Fast chunking: produced %d chunks from %s",
+                len(fast_chunks),
+                path.name,
+            )
+            return fast_chunks
+
     t0 = time.perf_counter()
     logger.info("Docling: converting %s (%.1f KB)", path.name, path.stat().st_size / 1024)
-    converter = DocumentConverter()
+    converter = _get_docling_converter()
     result = converter.convert(str(path))
     doc = result.document
     t1 = time.perf_counter()
@@ -171,9 +316,7 @@ def chunk_document(
             if headings:
                 heading = " > ".join(headings)
 
-        chunks.append(
-            DocumentChunk(text=text, page=page, heading=heading, index=idx)
-        )
+        chunks.append(DocumentChunk(text=text, page=page, heading=heading, index=idx))
 
     logger.info("Docling: produced %d chunks from %s", len(chunks), path.name)
     return chunks
